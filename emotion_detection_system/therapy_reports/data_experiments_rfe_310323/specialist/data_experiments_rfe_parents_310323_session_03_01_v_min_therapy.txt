@@ -2,21 +2,21 @@ Therapy Plan for ASD Session
 Participant: 3  Session: 1  Annotation: specialist
 Experiment: data_experiments_rfe_parents_310323  Config: session_03_01_v_min
 
-Metrics: Accuracy=0.15, Balanced Accuracy=0.15000000000000002
+Metrics: Accuracy=0.2, Balanced Accuracy=0.2
 Distribution of predicted emotion zones:
 - blue: 5
-- green: 7
-- red: 3
-- yellow: 5
+- green: 5
+- red: 4
+- yellow: 6
 
-Primary zone observed: green
-Summary: Calm/regulated (low arousal, positive valence).
+Primary zone observed: yellow
+Summary: Excited/over-aroused (high arousal, positive valence).
 Suggested interventions:
-- Proceed with skill-building tasks and structured learning.
-- Use social engagement, joint attention, and reinforcement.
-- Introduce communication practice and turn-taking activities.
+- Channel energy into movement-based or sensory activities.
+- Use clear transitions, timers, and brief task segments.
+- Practice regulation strategies (paced breathing, grounding).
 
 Top segments:
 - green | 0.03s → 0.10s (3 samples)
 - yellow | 0.13s → 0.20s (3 samples)
-- green | 0.56s → 0.63s (3 samples)
+- yellow | 0.46s → 0.49s (2 samples)

@@ -6,8 +6,8 @@ import pickle
 import pandas as pd
 import numpy as np
 from sklearn import svm
-from sklearn.metrics import confusion_matrix, accuracy_score, balanced_accuracy_score, recall_score, \
-    precision_score, precision_recall_fscore_support, classification_report, multilabel_confusion_matrix
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, recall_score, \
+    precision_score, precision_recall_fscore_support, classification_report
 from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
 from sklearn.feature_selection import RFECV, RFE
 from sklearn.tree import DecisionTreeClassifier
@@ -81,6 +81,10 @@ class EmotionDetectionConfiguration:
             self.rfe_algorithm = None
         self.grid_search = self.configuration.get('grid_search', False)
         self.load_trained_model = self.configuration.get('load_trained_model', False)
+        # Console output toggles
+        self.print_train_examples_per_class = self.configuration.get('print_train_examples_per_class', False)
+        self.print_feature_counts = self.configuration.get('print_feature_counts', False)
+        self.print_grid_search_params = self.configuration.get('print_grid_search_params', False)
         if self.load_trained_model:
             self.model_to_load_experiment = self.configuration.get('model_to_load_experiment', False)
             self.model_to_load_config = self.configuration.get("model_to_load_config", False)
@@ -767,8 +771,6 @@ class EmotionDetectionClassifier:
         # self._calculate_precision()
         self._calculate_precision_recall_f1score_support()
         self._generate_classification_report()
-        self._calculate_confusion_matrix()
-        self._calculate_multilabel_confusion_matrix()
 
     def _set_classifier_model(self):
         if self.configuration.balance_dataset and self.configuration.balance_dataset_technique == 'class_weight':
@@ -866,20 +868,44 @@ class EmotionDetectionClassifier:
                                                                                                   labels=self.emotion_from_classifier)
 
     def _generate_classification_report(self):
-        self.classification_report = classification_report(self.dataset.y_test, self._prediction_labels,
-                                                           labels=self.emotion_from_classifier, digits=4)
+        rep = classification_report(self.dataset.y_test, self._prediction_labels,
+                                    labels=self.emotion_from_classifier,
+                                    output_dict=True, digits=4)
+        # Build a clean fixed-width table
+        headers = ["Class", "Precision", "Recall", "F1-score", "Support"]
+        rows = []
+        for cls in self.emotion_from_classifier:
+            if cls in rep:
+                r = rep[cls]
+                rows.append([
+                    str(cls),
+                    f"{r.get('precision', 0):.4f}",
+                    f"{r.get('recall', 0):.4f}",
+                    f"{r.get('f1-score', 0):.4f}",
+                    f"{int(r.get('support', 0))}"
+                ])
+        # Add macro avg and weighted avg
+        if 'macro avg' in rep:
+            r = rep['macro avg']
+            rows.append(["macro avg", f"{r.get('precision', 0):.4f}", f"{r.get('recall', 0):.4f}", f"{r.get('f1-score', 0):.4f}", f"{int(r.get('support', 0))}"])
+        if 'weighted avg' in rep:
+            r = rep['weighted avg']
+            rows.append(["weighted avg", f"{r.get('precision', 0):.4f}", f"{r.get('recall', 0):.4f}", f"{r.get('f1-score', 0):.4f}", f"{int(r.get('support', 0))}"])
+        # Build string with aligned columns
+        widths = [max(len(headers[i]), max((len(row[i]) for row in rows), default=0)) for i in range(len(headers))]
+        def fmt_row(row):
+            return "  ".join(val.ljust(widths[i]) for i, val in enumerate(row))
+        lines = [fmt_row(headers), fmt_row(["-" * widths[i] for i in range(len(headers))])]
+        for row in rows:
+            lines.append(fmt_row(row))
+        # Append accuracy on a separate line if present
+        if 'accuracy' in rep:
+            acc_val = rep['accuracy']
+            lines.append("")
+            lines.append(f"Accuracy (report): {acc_val:.4f}")
+        self.classification_report = "\n".join(lines)
 
-    def _calculate_confusion_matrix(self):
-        """
-        To calculate confusion matrix
-        """
-        self.confusion_matrix = confusion_matrix(self.dataset.y_test,
-                                                 self._prediction_labels,
-                                                 labels=self.emotion_from_classifier)
-
-    def _calculate_multilabel_confusion_matrix(self):
-        self.multilabel_confusion_matrix = multilabel_confusion_matrix(self.dataset.y_test, self._prediction_labels,
-                                                                       labels=self.emotion_from_classifier)
+    
 
     def format_json_results(self):
         # header_csv = ['Data_Included_Slug', 'Scenario', 'Annotation_Type', 'Accuracy', 'Accuracy_Balanced',
@@ -954,10 +980,7 @@ class EmotionDetectionClassifier:
                 print(self.executor.best_params_)
             else:
                 # late fusion case
-                print("Best Search Grid Parameters (video):\n")
-                print(self.video_executor.best_params_)
-                print("Best Search Grid Parameters (audio):\n")
-                print(self.audio_executor.best_params_)
+                pass
 
     def show_results(self):
         """
@@ -965,24 +988,19 @@ class EmotionDetectionClassifier:
         :return:
         """
         print(f'######################################')
-        print(' ... CONFIGURATION ... \n')
-        print(self.__str__())
-        print(f'###################################### \n')
         print(f' ... RESULTS ... \n')
         # print(f'Accuracy: {self.accuracy}')
         print(f'Accuracy: {self.accuracy:.4f}')
         print(f'Balanced Accuracy: {self.balanced_accuracy:.4f}')
         print(f'Classification report: {self.classification_report}')
-        print(f'Confusion matrix: labels={self.emotion_from_classifier}')
-        print(self.confusion_matrix)
-        print(f'\nMultilabel Confusion matrix:')
-        print(self.multilabel_confusion_matrix)
         print(f'Total train examples: {self._get_train_examples_number_to_print()}')
-        print(f'Total test examples: {np.sum(self.confusion_matrix)}')
-        self.print_train_example_number_per_class()
-        # print(f'Number of examples per class in test: \n{self.y_test.value_counts()}')
-        self.print_train_features_number()
-        self.print_search_grid_elements()
+        print(f'Total test examples: {len(self.dataset.y_test)}')
+        if self.configuration.print_train_examples_per_class:
+            self.print_train_example_number_per_class()
+        if self.configuration.print_feature_counts:
+            self.print_train_features_number()
+        if self.configuration.print_grid_search_params:
+            self.print_search_grid_elements()
         print(f'\n')
         print(f'######################################')
 

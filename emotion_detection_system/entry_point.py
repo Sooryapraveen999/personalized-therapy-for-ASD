@@ -10,7 +10,7 @@ from emotion_detection_system.ed_classifier import EmotionDetectionClassifier
 from emotion_detection_system.ensemble_classifier import EmotionDetectionEnsemble
 from emotion_detection_system.processing_results.process_results import get_scenario
 from emotion_detection_system.conf import emotion_detection_system_folder, TRAINED_MODELS_FOLDER, DATA_EXPERIMENT_SLUG
-from emotion_detection_system.therapy.therapy_exporter import generate_therapy_form, build_therapy_paragraph
+from emotion_detection_system.therapy.therapy_exporter import generate_therapy_form, build_therapy_bulleted_summary
 
 folder_to_save = DATA_EXPERIMENT_SLUG.split('_')[:-2]
 date_experiment = DATA_EXPERIMENT_SLUG.split('_')[-1]
@@ -37,9 +37,9 @@ def script_entry(json_file):
 
     # If want to generate structured json files with the results
     generate_json_results(classifier, path_json)
-    therapy_paragraph = build_therapy_paragraph(classifier, path_json)
+    therapy_summary = build_therapy_bulleted_summary(classifier, path_json)
     print(' ... THERAPY SUMMARY ...')
-    print(therapy_paragraph)
+    print(therapy_summary)
     generate_therapy_form(classifier, path_json, folder_to_save_name)
 
     if not classifier.configuration.load_trained_model:

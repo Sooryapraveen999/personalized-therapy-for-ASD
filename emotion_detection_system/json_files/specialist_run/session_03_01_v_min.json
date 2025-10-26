@@ -28,5 +28,8 @@
   },
   "fusion_type": "early_fusion",
   "balanced_dataset": false,
-  "balance_dataset_technique": ""
+  "balance_dataset_technique": "",
+  "print_train_examples_per_class": true,
+  "print_feature_counts": true,
+  "print_grid_search_params": false
 }

@@ -215,3 +215,44 @@ def build_therapy_paragraph(classifier, path_json):
         f"Key segments observed: {seg_txt}."
     )
     return paragraph
+
+def build_therapy_bulleted_summary(classifier, path_json):
+    test_df = _get_test_dataframe(classifier)
+    timeline, segments_top = _build_timeline(classifier, test_df)
+    counts = Counter([r['emotion'] for r in timeline])
+    distribution = {e: int(counts.get(e, 0)) for e in essential_emotions}
+    primary = max(distribution, key=lambda k: distribution[k]) if timeline else None
+
+    part = int(classifier.configuration.participant_number)
+    sess = str(classifier.configuration.session_number)
+    acc = classifier.accuracy if classifier.accuracy is not None else 0.0
+    bacc = classifier.balanced_accuracy if classifier.balanced_accuracy is not None else 0.0
+    pr = THERAPY_SUGGESTIONS.get(primary, {}) if primary else {}
+
+    lines = []
+    lines.append(f"Participant: {part}")
+    lines.append(f"Session: {sess}")
+    lines.append(f"Annotation: {classifier.configuration.annotation_type}")
+    lines.append(f"Accuracy: {acc:.2f}")
+    lines.append(f"Balanced Accuracy: {bacc:.2f}")
+    if primary:
+        lines.append(f"Primary Zone: {primary}")
+        if pr.get('summary'):
+            lines.append(f"Summary: {pr['summary']}")
+        if pr.get('suggestions'):
+            lines.append("Interventions:")
+            for s in pr['suggestions']:
+                lines.append(f"- {s}")
+    lines.append("Distribution:")
+    for e in essential_emotions:
+        lines.append(f"- {e}: {distribution.get(e, 0)}")
+    if segments_top:
+        lines.append("Top Segments:")
+        for seg in segments_top:
+            st = seg.get('start_time_seconds')
+            et = seg.get('end_time_seconds')
+            if st is not None and et is not None:
+                lines.append(f"- {seg['emotion']} | {st:.2f}s to {et:.2f}s ({seg['length']} samples)")
+            else:
+                lines.append(f"- {seg['emotion']} | idx {seg['start_index']} to {seg['end_index']} ({seg['length']} samples)")
+    return "\n".join(lines)

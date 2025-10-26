@@ -5,14 +5,14 @@
   "session": "1",
   "annotation_type": "specialist",
   "metrics": {
-    "accuracy": 0.15,
-    "balanced_accuracy": 0.15000000000000002
+    "accuracy": 0.2,
+    "balanced_accuracy": 0.2
   },
   "distribution": {
     "blue": 5,
-    "green": 7,
-    "red": 3,
-    "yellow": 5
+    "green": 5,
+    "red": 4,
+    "yellow": 6
   },
   "segments_top3": [
     {
@@ -36,23 +36,23 @@
       "end_frametime": "0.198"
     },
     {
-      "emotion": "green",
-      "start_index": 17,
-      "end_index": 19,
-      "length": 3,
-      "start_time_seconds": 0.561,
-      "end_time_seconds": 0.627,
-      "start_frametime": "0.561",
-      "end_frametime": "0.627"
+      "emotion": "yellow",
+      "start_index": 14,
+      "end_index": 15,
+      "length": 2,
+      "start_time_seconds": 0.462,
+      "end_time_seconds": 0.495,
+      "start_frametime": "0.462",
+      "end_frametime": "0.495"
     }
   ],
   "recommendations": {
-    "primary_emotion": "green",
-    "primary_summary": "Calm/regulated (low arousal, positive valence).",
+    "primary_emotion": "yellow",
+    "primary_summary": "Excited/over-aroused (high arousal, positive valence).",
     "primary_interventions": [
-      "Proceed with skill-building tasks and structured learning.",
-      "Use social engagement, joint attention, and reinforcement.",
-      "Introduce communication practice and turn-taking activities."
+      "Channel energy into movement-based or sensory activities.",
+      "Use clear transitions, timers, and brief task segments.",
+      "Practice regulation strategies (paced breathing, grounding)."
     ],
     "by_emotion": {
       "blue": {
