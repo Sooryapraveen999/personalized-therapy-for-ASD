@@ -1,0 +1,84 @@
+{
+  "experiment_slug": "data_experiments_rfe_parents_310323",
+  "config_slug": "session_03_01_a_min",
+  "participant": 3,
+  "session": "1",
+  "annotation_type": "specialist",
+  "metrics": {
+    "accuracy": 0.2,
+    "balanced_accuracy": 0.2
+  },
+  "distribution": {
+    "blue": 4,
+    "green": 9,
+    "red": 7,
+    "yellow": 0
+  },
+  "segments_top3": [
+    {
+      "emotion": "green",
+      "start_index": 15,
+      "end_index": 18,
+      "length": 4,
+      "start_time_seconds": 0.375,
+      "end_time_seconds": 0.45,
+      "start_frametime": "0.375",
+      "end_frametime": "0.45"
+    },
+    {
+      "emotion": "red",
+      "start_index": 6,
+      "end_index": 8,
+      "length": 3,
+      "start_time_seconds": 0.15000000000000002,
+      "end_time_seconds": 0.2,
+      "start_frametime": "0.15000000000000002",
+      "end_frametime": "0.2"
+    },
+    {
+      "emotion": "red",
+      "start_index": 3,
+      "end_index": 4,
+      "length": 2,
+      "start_time_seconds": 0.07500000000000001,
+      "end_time_seconds": 0.1,
+      "start_frametime": "0.07500000000000001",
+      "end_frametime": "0.1"
+    }
+  ],
+  "recommendations": {
+    "primary_emotion": "green",
+    "primary_summary": "Calm/regulated (low arousal, positive valence).",
+    "primary_interventions": [
+      "Proceed with skill-building tasks and structured learning.",
+      "Use social engagement, joint attention, and reinforcement.",
+      "Introduce communication practice and turn-taking activities."
+    ],
+    "by_emotion": {
+      "blue": {
+        "summary": "Low energy/sad/withdrawn (low arousal, negative valence).",
+        "suggestions": [
+          "Increase engagement with preferred or highly motivating items.",
+          "Use short success-oriented tasks to build momentum.",
+          "Incorporate joint play and positive affect to elevate mood."
+        ]
+      },
+      "green": {
+        "summary": "Calm/regulated (low arousal, positive valence).",
+        "suggestions": [
+          "Proceed with skill-building tasks and structured learning.",
+          "Use social engagement, joint attention, and reinforcement.",
+          "Introduce communication practice and turn-taking activities."
+        ]
+      },
+      "red": {
+        "summary": "Anger/stress/anxiety (high arousal, negative valence).",
+        "suggestions": [
+          "Decrease stimulation; offer quiet space or sensory breaks.",
+          "Coach emotion labeling and simple coping strategies.",
+          "Use predictable routines and reduce task demands temporarily."
+        ]
+      }
+    }
+  }
+}

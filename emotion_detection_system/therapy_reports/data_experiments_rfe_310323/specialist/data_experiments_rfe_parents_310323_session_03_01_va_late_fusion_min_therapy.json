@@ -1,0 +1,48 @@
+{
+  "experiment_slug": "data_experiments_rfe_parents_310323",
+  "config_slug": "session_03_01_va_late_fusion_min",
+  "participant": 3,
+  "session": "1",
+  "annotation_type": "specialist",
+  "metrics": {
+    "accuracy": 1.0,
+    "balanced_accuracy": 1.0
+  },
+  "distribution": {
+    "blue": 0,
+    "green": 1,
+    "red": 0,
+    "yellow": 0
+  },
+  "segments_top3": [
+    {
+      "emotion": "green",
+      "start_index": 0,
+      "end_index": 0,
+      "length": 1,
+      "start_time_seconds": 0.0,
+      "end_time_seconds": 0.0,
+      "start_frametime": "0.0",
+      "end_frametime": "0.0"
+    }
+  ],
+  "recommendations": {
+    "primary_emotion": "green",
+    "primary_summary": "Calm/regulated (low arousal, positive valence).",
+    "primary_interventions": [
+      "Proceed with skill-building tasks and structured learning.",
+      "Use social engagement, joint attention, and reinforcement.",
+      "Introduce communication practice and turn-taking activities."
+    ],
+    "by_emotion": {
+      "green": {
+        "summary": "Calm/regulated (low arousal, positive valence).",
+        "suggestions": [
+          "Proceed with skill-building tasks and structured learning.",
+          "Use social engagement, joint attention, and reinforcement.",
+          "Introduce communication practice and turn-taking activities."
+        ]
+      }
+    }
+  }
+}

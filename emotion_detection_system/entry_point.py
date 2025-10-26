@@ -1,0 +1,112 @@
+import json
+import os.path
+import pathlib
+from datetime import datetime
+import pickle
+
+import sys
+
+from emotion_detection_system.ed_classifier import EmotionDetectionClassifier
+from emotion_detection_system.ensemble_classifier import EmotionDetectionEnsemble
+from emotion_detection_system.processing_results.process_results import get_scenario
+from emotion_detection_system.conf import emotion_detection_system_folder, TRAINED_MODELS_FOLDER, DATA_EXPERIMENT_SLUG
+from emotion_detection_system.therapy.therapy_exporter import generate_therapy_form, build_therapy_paragraph
+
+folder_to_save = DATA_EXPERIMENT_SLUG.split('_')[:-2]
+date_experiment = DATA_EXPERIMENT_SLUG.split('_')[-1]
+folder_to_save.append(date_experiment)
+folder_to_save_name = '_'.join(folder_to_save)
+
+
+def script_entry(json_file):
+    path_json = os.path.join(emotion_detection_system_folder, 'json_files', json_file)
+    file_name = pathlib.Path(path_json).name
+
+    f = open(path_json)
+    configure_data = json.load(f)
+
+    if configure_data.get('ensemble_model', False):
+        classifier = EmotionDetectionEnsemble(configure_data)
+        classifier.produce_predictions()
+    else:
+        classifier = EmotionDetectionClassifier(configure_data)
+        classifier.train_model_produce_predictions()
+
+    classifier.produce_final_predictions()
+    classifier.show_results()
+
+    # If want to generate structured json files with the results
+    generate_json_results(classifier, path_json)
+    therapy_paragraph = build_therapy_paragraph(classifier, path_json)
+    print(' ... THERAPY SUMMARY ...')
+    print(therapy_paragraph)
+    generate_therapy_form(classifier, path_json, folder_to_save_name)
+
+    if not classifier.configuration.load_trained_model:
+        if not classifier.configuration.ensemble_model:
+            save_model(classifier, file_name)
+
+
+def save_model(classifier, file_name):
+    file_name = file_name.split('.json')[0]
+    file_name = f"{DATA_EXPERIMENT_SLUG}_{file_name}"
+    path_to_save = os.path.join(TRAINED_MODELS_FOLDER, folder_to_save_name, classifier.configuration.annotation_type)
+
+    if not os.path.exists(path_to_save):
+        os.makedirs(path_to_save)
+
+    if classifier.dataset.x is not None:
+        output_path = os.path.join(path_to_save, file_name + '.pickle')
+        # uni modal or early fusion cases
+        pickle.dump(classifier.executor, open(output_path, "wb"))
+    else:
+        # late fusion case
+        output_path_video = os.path.join(path_to_save, file_name + '_video' + '.pickle')
+        output_path_audio = os.path.join(path_to_save, file_name + '_audio' + '.pickle')
+        pickle.dump(classifier.video_executor, open(output_path_video, "wb"))
+        pickle.dump(classifier.audio_executor, open(output_path_audio, "wb"))
+
+
+def generate_json_results(classifier, path_json):
+    classifier.format_json_results()
+    json_result = classifier.json_results_information
+
+    file_name = pathlib.Path(path_json).name
+    slug = file_name
+
+    json_result['Data_Included_Slug'] = slug.split('.json')[0]
+    json_result['Scenario'] = get_scenario(json_result['Data_Included_Slug'])
+    save_json_result_file(json_result, file_name)
+
+
+def save_json_result_file(dict_json, file_name):
+    path_json_results = os.path.join(emotion_detection_system_folder, 'json_results', folder_to_save_name,
+                                     dict_json['Annotation_Type'])
+
+    if not os.path.exists(path_json_results):
+        os.makedirs(path_json_results)
+
+    file_name = f"{DATA_EXPERIMENT_SLUG}_{file_name}"
+
+    output_json_path = os.path.join(path_json_results, file_name)
+
+    with open(output_json_path, 'w') as json_to_write:
+        json.dump(dict_json, json_to_write)
+
+
+if __name__ == '__main__':
+    # if using shell script
+    json_file = sys.argv[1]
+    # If using local run
+    # json_file = 'example_annotation_specialist.json'
+    # json_file = 'example_cv_opo.json'
+    # json_file = 'all_data_va_late_fusion.json'
+    # json_file = 'specialist_nn_tuning/all_data_va_late_fusion_04.json'
+    # json_file = 'specialist_nn_algorithm_os_adasyn/participant_03_va_late_fusion.json'
+
+    script_entry(json_file)
+
+    # TODO add to README the hierarchic order of the configuration option for data experiments
+    ############################################################
+    # Example of configuration
+    ############################################################
